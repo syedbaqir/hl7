@@ -6,11 +6,11 @@ use Illuminate\Http\Request;
 use Aranyasen\HL7\Message; // If Message is used
 use Aranyasen\HL7\Segment; // If Segment is used
 use Aranyasen\HL7\Segments\PID; // If Segment is used
-use Aranyasen\HL7\Segments\ACK;
+use Aranyasen\HL7\Segments\IN1;
 use Aranyasen\HL7\Segments\MSH; // If MSH is used
-
-
-
+use Aranyasen\HL7\Segments\OBR;
+use Aranyasen\HL7\Segments\ORC; // If MSH is used
+use Aranyasen\HL7\Segments\DG1; // If MSH is used
 
 class HomeController extends Controller
 {
@@ -170,7 +170,7 @@ public function hl7(Request $request)
         // $dd=$msg->hasSegment('PID');
         // dd($first);
 
-    return view("hltotext",compact('patientName','getSex','getID','getMaritalStatus','getNationality','getPatientAddress','getPatientID','getPhoneNumberBusiness','getDateTimeOfBirth'));
+    return view("hltotext",compact('patientName','Sex','ID','MaritalStatus','Nationality','PatientAddress','PatientID','PhoneNumberBusiness','DateTimeOfBirth'));
         
 
     
@@ -183,17 +183,15 @@ public function hl7(Request $request)
 public function getFile()
 {
     $pidData=[];
+    $in2Data=[];
+    $gt1Data=[];
+    $orcData=[];
     $msg = new Message(file_get_contents('https://softvrbox.com/sampleorder.hl7'));   
+    
+    // dd($msg);
     $pid=new PID();
-
-
-$myBagArray = (array)$msg;
-
-//dd(json_decode($myBagArray));
-
-
-
     $pid = $msg->getSegmentsByName('PID')[0];
+
     $pidData['Patient Name']=$pid->getPatientName();    
     $pidData['Gander']=$pid->getSex();
     $pidData['ID']=$pid->getID();
@@ -217,12 +215,193 @@ $myBagArray = (array)$msg;
     $pidData['SSN Number']=$pid->getSSNNumber();    
     $pidData['Veterans Military Status']=$pid->getVeteransMilitaryStatus();
     $pidData['Alternate Patient ID']=$pid->getAlternatePatientID(); 
-    //dd($msg->isOrm());
-    //dd(json_decode($msg));
-    return view("fileToText",compact("pidData"));
+
+    $in1=new IN1();
+    $in1 = $msg->getSegmentsByName('IN1')[0];
+
+    $in2Data['Assignment Of Benefits']=$in1->getAssignmentOfBenefits();
+    $in2Data['Authorization Information']=$in1->getAuthorizationInformation();
+    $in2Data['Billing Status']=$in1->getBillingStatus();
+    $in2Data['Company Plan Code']=$in1->getCompanyPlanCode();
+    $in2Data['Coord Of Ben Priority']=$in1->getCoordOfBenPriority();
+    $in2Data['Coordination Of Benefits']=$in1->getCoordinationOfBenefits();
+    $in2Data['Coverage Type']=$in1->getCoverageType();
+    $in2Data['Delay Before LR Day']=$in1->getDelayBeforeLRDay();
+    $in2Data['Group Name']=$in1->getGroupName();
+    $in2Data['Group Number']=$in1->getGroupNumber();
+    $in2Data['Handicap']=$in1->getHandicap();
+    $in2Data['ID']=$in1->getID();
+    $in2Data['Insurance Co Contact Person']=$in1->getInsuranceCoContactPerson();
+    $in2Data['Insurance Co Phone Number']=$in1->getInsuranceCoPhoneNumber();
+    $in2Data['Insurance Company Address']=$in1->getInsuranceCompanyAddress();
+    $in2Data['Insurance Company ID']=$in1->getInsuranceCompanyID();
+    $in2Data['Insurance Company Name']=$in1->getInsuranceCompanyName();
+    $in2Data['Insurance Plan ID']=$in1->getInsurancePlanID();
+    $in2Data['Insureds Address']=$in1->getInsuredsAddress();
+    $in2Data['Insureds Date Of Birth']=$in1->getInsuredsDateOfBirth();
+    $in2Data['Insureds Employers Address']=$in1->getInsuredsEmployersAddress();
+    $in2Data['Insureds Employment Status']=$in1->getInsuredsEmploymentStatus();
+    $in2Data['Insureds Group Emp ID']=$in1->getInsuredsGroupEmpID();
+    $in2Data['Insureds Group Emp Name']=$in1->getInsuredsGroupEmpName();
+    $in2Data['Insureds ID Number']=$in1->getInsuredsIDNumber();
+    $in2Data['Insureds Relationship To Patient']=$in1->getInsuredsRelationshipToPatient();
+    $in2Data['Insureds Sex']=$in1->getInsuredsSex();
+    $in2Data['Lifetime Reserve Days']=$in1->getLifetimeReserveDays();
+    $in2Data['Name Of Insured']=$in1->getNameOfInsured();
+    $in2Data['Notice Of Admission Date']=$in1->getNoticeOfAdmissionDate();
+    $in2Data['Notice Of Admission Flag']=$in1->getNoticeOfAdmissionFlag();
+    $in2Data['Plan Effective Date']=$in1->getPlanEffectiveDate();
+    $in2Data['Plan Expiration Date']=$in1->getPlanExpirationDate();
+    $in2Data['Plan Type']=$in1->getPlanType();
+    $in2Data['Policy Deductible']=$in1->getPolicyDeductible();
+    $in2Data['Policy Limit Amount']=$in1->getPolicyLimitAmount();
+    $in2Data['Policy Limit Days']=$in1->getPolicyLimitDays();
+    $in2Data['Policy Number']=$in1->getPolicyNumber();
+    $in2Data['Pre Admit Cert PAC']=$in1->getPreAdmitCertPAC();
+    $in2Data['Prior Insurance Plan ID']=$in1->getPriorInsurancePlanID();
+    $in2Data['Release Information Code']=$in1->getReleaseInformationCode();
+    $in2Data['Report Of Eligibility Date']=$in1->getReportOfEligibilityDate();
+    $in2Data['Report Of Eligibility Flag']=$in1->getReportOfEligibilityFlag();
+    $in2Data['Room Rate Private']=$in1->getRoomRatePrivate();
+    $in2Data['Room Rate Semi Private']=$in1->getRoomRateSemiPrivate();
+    $in2Data['Type Of Agreement Code']=$in1->getTypeOfAgreementCode();
+    $in2Data['Verification By']=$in1->getVerificationBy();
+    $in2Data['Verification Date Time']=$in1->getVerificationDateTime();
+    $in2Data['Verification Status']=$in1->getVerificationStatus();
+
+   // $gt1=new GT1();
+    $gt1 = $msg->getSegmentsByName('GT1')[0];
+
+    $gt1Data['Set ID']=$gt1->getField(0);
+    $gt1Data['Guarantor Number']=$gt1->getField(1);
+    $gt1Data['Guarantor Name']=$gt1->getField(2);
+    $gt1Data['Guarantor Spouse Name']=$gt1->getField(3);
+    $gt1Data['Guarantor Address']=$gt1->getField(4);
+    $gt1Data['Guarantor Ph Num - Home']=$gt1->getField(5);
+    $gt1Data['Guarantor Ph Num - Business']=$gt1->getField(6);
+    $gt1Data['Guarantor Date/Time Of Birth']=$gt1->getField(7);
+    $gt1Data['Guarantor Administrative Sex']=$gt1->getField(8);
+    $gt1Data['Guarantor Type']=$gt1->getField(9);
+    $gt1Data['Guarantor Relationship']=$gt1->getField(10);
+  
+    $orc=new ORC();
+    $orc = $msg->getSegmentsByName('ORC')[0];
+
+    $orcData['ActionBy']=$orc->getActionBy();	
+    $orcData['AdvancedBeneficiaryNoticeCode']=$orc->getAdvancedBeneficiaryNoticeCode();
+    $orcData['AdvancedBeneficiaryNoticeOverrideReason']=$orc->getAdvancedBeneficiaryNoticeOverrideReason();
+    $orcData['CallBackPhoneNumber']=$orc->getCallBackPhoneNumber();
+    $orcData['ConfidentialityCode']=$orc->getConfidentialityCode();
+    $orcData['DateTimeofTransaction']=$orc->getDateTimeofTransaction();
+    $orcData['EnteredBy']=$orc->getEnteredBy();
+    $orcData['EntererAuthorizationMode']=$orc->getEntererAuthorizationMode();
+    $orcData['EnterersLocation']=$orc->getEnterersLocation();
+    $orcData['EnteringDevice']=$orc->getEnteringDevice();
+    $orcData['EnteringOrganization']=$orc->getEnteringOrganization();
+    $orcData['FillerOrderNumber']=$orc->getFillerOrderNumber();
+    $orcData['FillersExpectedAvailabilityDateTime']=$orc->getFillersExpectedAvailabilityDateTime();
+    $orcData['OrderControl']=$orc->getOrderControl();
+    $orcData['OrderControlCodeReason']=$orc->getOrderControlCodeReason();
+    $orcData['OrderEffectiveDateTime']=$orc->getOrderEffectiveDateTime();
+    $orcData['OrderStatus']=$orc->getOrderStatus();
+    $orcData['OrderStatusModifier']=$orc->getOrderStatusModifier();
+    $orcData['OrderType']=$orc->getOrderType();
+    $orcData['OrderingFacilityAddress']=$orc->getOrderingFacilityAddress();
+    $orcData['OrderingFacilityName']=$orc->getOrderingFacilityName();
+    $orcData['OrderingFacilityPhoneNumber']=$orc->getOrderingFacilityPhoneNumber();
+    $orcData['OrderingProvider']=$orc->getOrderingProvider();
+    $orcData['OrderingProviderAddress']=$orc->getOrderingProviderAddress();
+    $orcData['ParentOrder']=$orc->getParentOrder();
+    $orcData['ParentUniversalServiceIdentifier']=$orc->getParentUniversalServiceIdentifier();
+    $orcData['PlacerGroupNumber']=$orc->getPlacerGroupNumber();
+    $orcData['PlacerOrderNumber']=$orc->getPlacerOrderNumber();
+    $orcData['QuantityTiming']=$orc->getQuantityTiming();
+    $orcData['ResponseFlag']=$orc->getResponseFlag();
+    $orcData['VerifiedBy']=$orc->getVerifiedBy();
+
+    $obr=new OBR();
+    $obr = $msg->getSegmentsByName('OBR')[0];
+    
+    
+
+
+    $obrData['Assistant Result Interpreter']=$obr->getAssistantResultInterpreter();	
+    $obrData['Chargeto Practice']=$obr->getChargetoPractice();
+    $obrData['Collection Volume']=$obr->getCollectionVolume();
+    $obrData['Collector Identifier']=$obr->getCollectorIdentifier();
+    $obrData['Collectors Comment']=$obr->getCollectorsComment();
+    $obrData['Danger Code']=$obr->getDangerCode();
+    $obrData['Diagnostic Serv Sect ID']=$obr->getDiagnosticServSectID();
+    $obrData['Escort Required']=$obr->getEscortRequired();
+    $obrData['Filler Field 1']=$obr->getFillerField1();
+    $obrData['Filler Field 2']=$obr->getFillerField2();
+    $obrData['Filler Order Number']=$obr->getFillerOrderNumber();
+    $obrData['ID']=$obr->getID();
+    $obrData['Number of Sample Containers']=$obr->getNumberofSampleContainers();
+    $obrData['Observation Date Time']=$obr->getObservationDateTime();
+    $obrData['Observation End Date Time']=$obr->getObservationEndDateTime();
+    $obrData['Order Callback Phone Number']=$obr->getOrderCallbackPhoneNumber();
+    $obrData['Ordering Provider']=$obr->getOrderingProvider();
+    $obrData['Parent']=$obr->getParent();
+    $obrData['Parent Result']=$obr->getParentResult();
+    $obrData['Placer Order Number']=$obr->getPlacerOrderNumber();
+    $obrData['Placer field 1']=$obr->getPlacerfield1();
+    $obrData['Placer field 2']=$obr->getPlacerfield2();
+    $obrData['Planned Patient Transport Comment']=$obr->getPlannedPatientTransportComment();
+    $obrData['Principal Result Interpreter']=$obr->getPrincipalResultInterpreter();
+    $obrData['Priority']=$obr->getPriority();
+    $obrData['Quantity Timing']=$obr->getQuantityTiming();
+    $obrData['Reason for Study']=$obr->getReasonforStudy();
+    $obrData['Relevant Clinical Info']=$obr->getRelevantClinicalInfo();
+    $obrData['Requested Date time']=$obr->getRequestedDatetime();
+    $obrData['Result Copies To']=$obr->getResultCopiesTo();
+    $obrData['Result Status']=$obr->getResultStatus();
+    $obrData['Results Rpt Status Chng Date Time']=$obr->getResultsRptStatusChngDateTime();
+    $obrData['Scheduled Date Time']=$obr->getScheduledDateTime();
+    $obrData['Specimen Action Code']=$obr->getSpecimenActionCode();
+    $obrData['Specimen Received Date Time']=$obr->getSpecimenReceivedDateTime();
+    $obrData['Specimen Source']=$obr->getSpecimenSource();
+    $obrData['Technician']=$obr->getTechnician();
+    $obrData['Transcriptionist']=$obr->getTranscriptionist();
+    $obrData['Transport Arranged']=$obr->getTransportArranged();
+    $obrData['Transport Arrangement Responsibility']=$obr->getTransportArrangementResponsibility();
+    $obrData['Transport Logistics of Collected Sample']=$obr->getTransportLogisticsofCollectedSample();
+    $obrData['Transportation Mode']=$obr->getTransportationMode();
+    $obrData['Universal Service ID']=$obr->getUniversalServiceID();
+
+    $dg1=new DG1();
+    $dg1 = $msg->getSegmentsByName('DG1')[0];
+
+    $dg1Data['Attestation Date Time']=$dg1->getAttestationDateTime();	
+    $dg1Data['Confidential Indicator']=$dg1->getConfidentialIndicator();	
+    $dg1Data['DRG Approval Indicator']=$dg1->getDRGApprovalIndicator();	
+    $dg1Data['DRG Grouper Review Code']=$dg1->getDRGGrouperReviewCode();	
+    $dg1Data['Diagnosing Clinician']=$dg1->getDiagnosingClinician();	
+    $dg1Data['Diagnosis Classification']=$dg1->getDiagnosisClassification();	
+    $dg1Data['Diagnosis Code DG1']=$dg1->getDiagnosisCodeDG1();	
+    $dg1Data['Diagnosis Coding Method']=$dg1->getDiagnosisCodingMethod();	
+    $dg1Data['Diagnosis Date Time']=$dg1->getDiagnosisDateTime();	
+    $dg1Data['Diagnosis Description']=$dg1->getDiagnosisDescription();	
+    $dg1Data['Diagnosis Priority']=$dg1->getDiagnosisPriority();	
+    $dg1Data['Diagnosis Type']=$dg1->getDiagnosisType();	
+    $dg1Data['Diagnostic Related Group']=$dg1->getDiagnosticRelatedGroup();	
+    $dg1Data['Grouper Version And Type']=$dg1->getGrouperVersionAndType();	
+    $dg1Data['ID']=$dg1->getID();	
+    $dg1Data['Major Diagnostic Category']=$dg1->getMajorDiagnosticCategory();
+    $dg1Data['Outlier Cost']=$dg1->getOutlierCost();	
+    $dg1Data['Outlier Days']=$dg1->getOutlierDays();	
+    $dg1Data['Outlier Type']=$dg1->getOutlierType();
+
+
+
+
+    return view("fileToText",compact("pidData",'in2Data','gt1Data','orcData','obrData','dg1Data'));
 }
 
 
 
 
 }
+
+
+
